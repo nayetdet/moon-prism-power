@@ -8,6 +8,9 @@
 *.so
 *.dylib
 
+# Application binary
+moon-prism-power
+
 # Test binary, built with `go test -c`
 *.test
 

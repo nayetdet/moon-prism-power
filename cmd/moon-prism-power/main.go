@@ -1,7 +1,20 @@
 package main
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+
+	"moon-prism-power/internal/cli"
+)
 
 func main() {
-	fmt.Println("Hello, World!")
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	if err := cli.Run(ctx, os.Stdin, os.Stdout, os.Stderr); err != nil {
+		fmt.Fprintln(os.Stderr, "error:", err)
+		os.Exit(1)
+	}
 }
