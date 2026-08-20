@@ -1,4 +1,4 @@
 .PHONY: run
 
 run:
-	go run .
+	go run ./cmd/moon-prism-power
