@@ -7,12 +7,14 @@ import (
 	"sync"
 )
 
+const callbackAddr = "127.0.0.1:3939"
+
 func startCallbackServer() (<-chan callbackResult, *http.Server, error) {
 	callback := make(chan callbackResult, 1)
-	server := &http.Server{Addr: "127.0.0.1:8787", Handler: callbackHandler(callback)}
+	server := &http.Server{Addr: callbackAddr, Handler: callbackHandler(callback)}
 	listener, err := net.Listen("tcp", server.Addr)
 	if err != nil {
-		return nil, nil, fmt.Errorf("start port 8787 or configure the callback: %w", err)
+		return nil, nil, fmt.Errorf("start %s or configure the callback: %w", callbackAddr, err)
 	}
 
 	go func() {

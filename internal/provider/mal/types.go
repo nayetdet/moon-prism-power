@@ -17,8 +17,10 @@ type listPaging struct {
 	Next string `json:"next"`
 }
 
-type tokenResponse struct {
-	AccessToken string `json:"access_token"`
+type OAuthToken struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	ExpiresIn    int    `json:"expires_in"`
 }
 
 type callbackResult struct {

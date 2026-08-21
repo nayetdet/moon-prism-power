@@ -1,4 +1,7 @@
-.PHONY: run
+.PHONY: mpp mpp-auth
 
-run:
-	go run ./cmd/moon-prism-power
+mpp:
+	go run ./cmd/mpp
+
+mpp-auth:
+	go run ./cmd/mpp-auth

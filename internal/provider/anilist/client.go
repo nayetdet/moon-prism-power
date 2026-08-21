@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"moon-prism-power/internal/migration"
 	"moon-prism-power/internal/utils"
@@ -27,7 +28,7 @@ func NewClient(httpClient *http.Client) *Client {
 func (c *Client) List(ctx context.Context, username string) ([]migration.SourceEntry, error) {
 	var all []migration.SourceEntry
 	for _, kind := range []migration.MediaKind{migration.Anime, migration.Manga} {
-		body, err := json.Marshal(mediaListRequest{Query: query, Variables: mediaListVariables{Username: username, MediaType: string(kind)}})
+		body, err := json.Marshal(mediaListRequest{Query: query, Variables: mediaListVariables{Username: username, MediaType: strings.ToUpper(string(kind))}})
 		if err != nil {
 			return nil, fmt.Errorf("encode AniList query: %w", err)
 		}
