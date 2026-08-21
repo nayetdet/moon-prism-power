@@ -2,15 +2,21 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"time"
 
 	"moon-prism-power/internal/migration"
 	"moon-prism-power/internal/platform/httpclient"
 	"moon-prism-power/internal/provider/anilist"
 	"moon-prism-power/internal/provider/mal"
+	"moon-prism-power/internal/report"
 )
+
+const reportDirectory = "data/report"
 
 func RunMPP(ctx context.Context, input io.Reader, output, errorOutput io.Writer) error {
 	if err := loadDotEnv(".env"); err != nil {
@@ -46,17 +52,30 @@ func RunMPP(ctx context.Context, input io.Reader, output, errorOutput io.Writer)
 		return err
 	}
 
+	startedAt := time.Now().UTC()
+	executionReport := report.New(plan, startedAt)
+	reportPath := filepath.Join(reportDirectory, "migration-"+executionReport.ExecutionID+".json")
+	if err := executionReport.Write(reportPath); err != nil {
+		return err
+	}
+
 	_, _ = fmt.Fprint(output, summary(plan))
 	if !confirm(input, output) {
+		executionReport.SetCanceled(time.Now())
+		if err := executionReport.Write(reportPath); err != nil {
+			return err
+		}
 		_, _ = fmt.Fprintln(output, "Migration canceled. No changes were made.")
 		return nil
 	}
 
 	result, applyErr := service.Apply(ctx, plan)
+	executionReport.SetResult(result, time.Now(), applyErr)
+	reportErr := executionReport.Write(reportPath)
 	for _, job := range result.Failed {
 		_, _ = fmt.Fprintf(errorOutput, "failed: %s: %s\n", job.Entry.Title, job.Reason)
 	}
 
 	_, _ = fmt.Fprintf(output, "\nMigration complete: %d succeeded, %d skipped, %d failed.\n", result.Succeeded, result.Skipped, len(result.Failed))
-	return applyErr
+	return errors.Join(applyErr, reportErr)
 }

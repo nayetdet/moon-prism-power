@@ -30,3 +30,6 @@ go.work.sum
 # Editor/IDE files
 .idea/
 .vscode/
+
+# Runtime-generated migration reports (keep data/report/.gitkeep)
+data/report/*.json

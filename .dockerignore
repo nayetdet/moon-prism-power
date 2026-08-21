@@ -34,6 +34,9 @@ go.work.sum
 .idea/
 .vscode/
 
+# Runtime-generated migration reports
+data/report/*.json
+
 # Docker files not needed inside the build context
 .dockerignore
 docker-compose*.yml

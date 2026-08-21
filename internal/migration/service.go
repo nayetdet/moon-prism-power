@@ -34,23 +34,29 @@ func (s Service) Plan(ctx context.Context, username string) (Plan, error) {
 }
 
 func (s Service) Apply(ctx context.Context, plan Plan) (Result, error) {
-	result := Result{}
-	for _, job := range plan.Jobs {
+	result := Result{Jobs: make([]JobResult, len(plan.Jobs))}
+	for i, job := range plan.Jobs {
 		if err := ctx.Err(); err != nil {
+			for j := i; j < len(result.Jobs); j++ {
+				result.Jobs[j] = JobResult{Status: JobInterrupted, Reason: err.Error()}
+			}
 			return result, err
 		}
 
 		if job.Reason != "" {
+			result.Jobs[i] = JobResult{Status: JobSkipped, Reason: job.Reason}
 			result.Skipped++
 			continue
 		}
 
 		if err := s.destination.Update(ctx, job.Update); err != nil {
 			job.Reason = err.Error()
+			result.Jobs[i] = JobResult{Status: JobFailed, Reason: job.Reason}
 			result.Failed = append(result.Failed, job)
 			continue
 		}
 
+		result.Jobs[i] = JobResult{Status: JobSucceeded}
 		result.Succeeded++
 	}
 

@@ -1,6 +1,12 @@
 schedule: "0 3 * * *"
 timeZone: America/Fortaleza
 
+reports:
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClassName: ""
+
 secrets:
   application:
     name: moon-prism-power

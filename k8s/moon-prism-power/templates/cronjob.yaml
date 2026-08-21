@@ -22,11 +22,24 @@ spec:
             app.kubernetes.io/name: {{ .Chart.Name }}
             app.kubernetes.io/instance: {{ .Release.Name }}
         spec:
+          securityContext:
+            fsGroup: 65532
           restartPolicy: Never
+          {{- if .Values.reports.persistence.enabled }}
+          volumes:
+            - name: reports
+              persistentVolumeClaim:
+                claimName: {{ .Release.Name }}-reports
+          {{- end }}
           containers:
             - name: moon-prism-power
               image: ghcr.io/nayetdet/moon-prism-power:latest
               imagePullPolicy: Always
+              {{- if .Values.reports.persistence.enabled }}
+              volumeMounts:
+                - name: reports
+                  mountPath: /app/data
+              {{- end }}
               envFrom:
                 - secretRef:
                     name: {{ required "secrets.application.name is required" .Values.secrets.application.name | quote }}

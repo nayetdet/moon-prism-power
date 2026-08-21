@@ -11,6 +11,7 @@ import (
 
 func summary(plan migration.Plan) string {
 	var create, update, skip int
+	var details strings.Builder
 	for _, job := range plan.Jobs {
 		switch job.Action {
 		case migration.ActionCreate:
@@ -20,9 +21,21 @@ func summary(plan migration.Plan) string {
 		case migration.ActionSkip:
 			skip++
 		}
+
+		fmt.Fprintf(&details, "  - %s %s %q (MAL ID %d)", strings.ToUpper(string(job.Action)), job.Entry.Kind, job.Entry.Title, job.Entry.MALID)
+		if job.Action == migration.ActionSkip {
+			fmt.Fprintf(&details, ": %s", job.Reason)
+		} else {
+			fmt.Fprintf(&details, ": status=%s, score=%d, progress=%d, volumes=%d, repeat=%d", job.Update.Status, job.Update.Score, job.Update.Progress, job.Update.Volumes, job.Update.Repeat)
+			if job.Update.StartDate != "" || job.Update.FinishDate != "" {
+				fmt.Fprintf(&details, ", dates=%s..%s", job.Update.StartDate, job.Update.FinishDate)
+			}
+		}
+
+		details.WriteByte('\n')
 	}
 
-	return fmt.Sprintf("Preview: %d create, %d update, %d skip.\n", create, update, skip)
+	return fmt.Sprintf("Preview: %d create, %d update, %d skip.\nPlanned changes:\n%s", create, update, skip, details.String())
 }
 
 func confirm(input io.Reader, output io.Writer) bool {

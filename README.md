@@ -59,3 +59,14 @@ memory when it starts, so no access token needs to be stored in `.env`.
 
 If the refresh token becomes invalid, run `make mpp-auth` again and replace it
 in `.env`.
+
+## Migration reports
+
+Each `mpp` execution writes a detailed JSON report to
+`data/report/migration-<timestamp>.json`. The report is created after the
+preview and updated after cancellation or migration, including every item,
+the source values, the converted target values, and the final status.
+
+The Kubernetes deployment mounts these reports on a persistent volume claim.
+The default size is `1Gi` and can be changed with
+`reports.persistence.size` in the Helm values.

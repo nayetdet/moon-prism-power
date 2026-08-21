@@ -75,4 +75,20 @@ type Result struct {
 	Succeeded int
 	Skipped   int
 	Failed    []Job
+	Jobs      []JobResult
+}
+
+type JobStatus string
+
+const (
+	JobPending     JobStatus = "pending"
+	JobSkipped     JobStatus = "skipped"
+	JobSucceeded   JobStatus = "succeeded"
+	JobFailed      JobStatus = "failed"
+	JobInterrupted JobStatus = "interrupted"
+)
+
+type JobResult struct {
+	Status JobStatus
+	Reason string
 }
