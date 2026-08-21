@@ -1,0 +1,11 @@
+schedule: "0 3 * * *"
+timeZone: America/Fortaleza
+
+secrets:
+  application:
+    name: moon-prism-power
+    externalSecret:
+      enabled: false
+      storeName: vault
+      refreshInterval: 1h
+      remoteKey: antimeta
