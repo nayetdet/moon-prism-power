@@ -1,4 +1,4 @@
-package mal
+package myanimelist
 
 import (
 	"context"
@@ -33,10 +33,10 @@ func NewClient(httpClient *http.Client) *Client {
 
 func (c *Client) SetToken(token string) { c.token = token }
 
-func (c *Client) List(ctx context.Context) (map[migration.MediaRef]struct{}, error) {
-	items := map[migration.MediaRef]struct{}{}
+func (c *Client) List(ctx context.Context) (map[migration.MediaRef]migration.TargetUpdate, error) {
+	items := map[migration.MediaRef]migration.TargetUpdate{}
 	for _, kind := range []migration.MediaKind{migration.Anime, migration.Manga} {
-		next := apiURL + "/users/@me/" + string(kind) + "list?limit=1000"
+		next := apiURL + "/users/@me/" + string(kind) + "list?limit=1000&fields=list_status"
 		for next != "" {
 			req, err := c.newRequest(ctx, http.MethodGet, next, nil)
 			if err != nil {
@@ -62,7 +62,7 @@ func (c *Client) List(ctx context.Context) (map[migration.MediaRef]struct{}, err
 			}
 
 			for _, entry := range page.Data {
-				items[migration.MediaRef{Kind: kind, MALID: entry.Node.ID}] = struct{}{}
+				items[migration.MediaRef{Kind: kind, MALID: entry.Node.ID}] = toTargetUpdate(kind, entry.Node)
 			}
 
 			next = page.Paging.Next
@@ -70,6 +70,30 @@ func (c *Client) List(ctx context.Context) (map[migration.MediaRef]struct{}, err
 	}
 
 	return items, nil
+}
+
+func toTargetUpdate(kind migration.MediaKind, node listNode) migration.TargetUpdate {
+	progress := node.ListStatus.NumEpisodesWatched
+	repeat := node.ListStatus.NumTimesRewatched
+	repeating := node.ListStatus.IsRewatching
+	if kind == migration.Manga {
+		progress = node.ListStatus.NumChaptersRead
+		repeat = node.ListStatus.NumTimesReread
+		repeating = node.ListStatus.IsRereading
+	}
+
+	return migration.TargetUpdate{
+		MediaRef:   migration.MediaRef{Kind: kind, MALID: node.ID},
+		Status:     node.ListStatus.Status,
+		Score:      node.ListStatus.Score,
+		Progress:   progress,
+		Volumes:    node.ListStatus.NumVolumesRead,
+		Repeat:     repeat,
+		Repeating:  repeating,
+		Notes:      node.ListStatus.Comments,
+		StartDate:  node.ListStatus.StartDate,
+		FinishDate: node.ListStatus.FinishDate,
+	}
 }
 
 func (c *Client) Update(ctx context.Context, item migration.TargetUpdate) error {

@@ -1,4 +1,4 @@
-package mal
+package myanimelist
 
 import (
 	"fmt"

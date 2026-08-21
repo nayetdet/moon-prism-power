@@ -12,7 +12,7 @@ import (
 	"moon-prism-power/internal/migration"
 	"moon-prism-power/internal/platform/httpclient"
 	"moon-prism-power/internal/provider/anilist"
-	"moon-prism-power/internal/provider/mal"
+	"moon-prism-power/internal/provider/myanimelist"
 	"moon-prism-power/internal/report"
 )
 
@@ -39,14 +39,14 @@ func RunMPP(ctx context.Context, input io.Reader, output, errorOutput io.Writer)
 		return clientErr
 	}
 
-	token, refreshErr := mal.Refresh(ctx, httpClient, clientID, refreshToken)
+	token, refreshErr := myanimelist.Refresh(ctx, httpClient, clientID, refreshToken)
 	if refreshErr != nil {
 		return refreshErr
 	}
 
-	malClient := mal.NewClient(httpClient)
-	malClient.SetToken(token.AccessToken)
-	service := migration.NewService(anilist.NewClient(httpClient), malClient)
+	myanimelistClient := myanimelist.NewClient(httpClient)
+	myanimelistClient.SetToken(token.AccessToken)
+	service := migration.NewService(anilist.NewClient(httpClient), myanimelistClient)
 	plan, err := service.Plan(ctx, username)
 	if err != nil {
 		return err

@@ -7,7 +7,7 @@ import (
 
 	"moon-prism-power/internal/platform/browser"
 	"moon-prism-power/internal/platform/httpclient"
-	"moon-prism-power/internal/provider/mal"
+	"moon-prism-power/internal/provider/myanimelist"
 )
 
 func RunMPPAuth(ctx context.Context, output io.Writer) error {
@@ -21,7 +21,7 @@ func RunMPPAuth(ctx context.Context, output io.Writer) error {
 	}
 
 	httpClient := httpclient.New()
-	token, err := mal.Authorize(ctx, httpClient, clientID, func(url string) {
+	token, err := myanimelist.Authorize(ctx, httpClient, clientID, func(url string) {
 		_, _ = fmt.Fprintf(output, "Open this URL to authorize MyAnimeList access:\n%s\n", url)
 		browser.Open(url)
 	})

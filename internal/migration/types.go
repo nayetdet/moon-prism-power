@@ -55,7 +55,7 @@ type Source interface {
 }
 
 type Destination interface {
-	List(context.Context) (map[MediaRef]struct{}, error)
+	List(context.Context) (map[MediaRef]TargetUpdate, error)
 	Update(context.Context, TargetUpdate) error
 }
 
