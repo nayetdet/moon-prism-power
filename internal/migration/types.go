@@ -40,6 +40,7 @@ type TargetUpdate struct {
 	Notes, StartDate, FinishDate     string
 	Score, Progress, Volumes, Repeat int
 	Repeating                        bool
+	ProgressLimit                    int `json:"-"`
 }
 
 type Action string
@@ -56,6 +57,7 @@ type Source interface {
 
 type Destination interface {
 	List(context.Context) (map[MediaRef]TargetUpdate, error)
+	Get(context.Context, MediaRef) (TargetUpdate, bool, error)
 	Update(context.Context, TargetUpdate) error
 }
 

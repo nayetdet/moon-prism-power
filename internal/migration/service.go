@@ -19,6 +19,7 @@ func (s Service) Plan(ctx context.Context, username string) (Plan, error) {
 	if err != nil {
 		return Plan{}, err
 	}
+	entries = mergeDuplicateEntries(entries)
 
 	existing, err := s.destination.List(ctx)
 	if err != nil {
@@ -27,6 +28,18 @@ func (s Service) Plan(ctx context.Context, username string) (Plan, error) {
 
 	jobs := make([]Job, 0, len(entries))
 	for _, entry := range entries {
+		if entry.MALID != 0 && toTargetStatus(entry.Kind, entry.Status) != "" {
+			current, found := existing[entry.MediaRef]
+			if !found || (current.ProgressLimit == 0 && entry.Progress > current.Progress) {
+				current, found, err := s.destination.Get(ctx, entry.MediaRef)
+				if err != nil {
+					return Plan{}, err
+				}
+				if found {
+					existing[entry.MediaRef] = current
+				}
+			}
+		}
 		jobs = append(jobs, newJob(entry, existing))
 	}
 

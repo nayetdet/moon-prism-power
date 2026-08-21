@@ -20,12 +20,11 @@ func planSummary(plan migration.Plan) string {
 			update++
 		case migration.ActionSkip:
 			skip++
+			continue
 		}
 
 		fmt.Fprintf(&details, "  - %s %s %q (MAL ID %d)", strings.ToUpper(string(job.Action)), job.Entry.Kind, job.Entry.Title, job.Entry.MALID)
-		if job.Action == migration.ActionSkip {
-			fmt.Fprintf(&details, ": %s", job.Reason)
-		} else if job.Current != nil {
+		if job.Current != nil {
 			fmt.Fprintf(&details, ": before {%s} -> after {%s}", targetSummary(*job.Current), targetSummary(job.Update))
 		} else {
 			fmt.Fprintf(&details, ": after {%s}", targetSummary(job.Update))
@@ -34,7 +33,12 @@ func planSummary(plan migration.Plan) string {
 		details.WriteByte('\n')
 	}
 
-	return fmt.Sprintf("Preview: %d create, %d update, %d skip.\nPlanned changes:\n%s", create, update, skip, details.String())
+	planned := details.String()
+	if planned == "" {
+		planned = "  No changes required.\n"
+	}
+
+	return fmt.Sprintf("Preview: %d create, %d update, %d skip.\nPlanned changes:\n%s", create, update, skip, planned)
 }
 
 func targetSummary(update migration.TargetUpdate) string {

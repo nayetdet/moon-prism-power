@@ -9,6 +9,55 @@ var targetStatuses = map[SourceStatus]TargetStatus{
 	StatusDropped:   "dropped",
 }
 
+// AniList can contain multiple entries that point to the same MAL item (for
+// example, split seasons). Keep one deterministic source of truth so applying
+// a plan cannot make the target alternate between their statuses.
+func mergeDuplicateEntries(entries []SourceEntry) []SourceEntry {
+	merged := make([]SourceEntry, 0, len(entries))
+	positions := make(map[MediaRef]int, len(entries))
+	for _, entry := range entries {
+		position, found := positions[entry.MediaRef]
+		if !found {
+			positions[entry.MediaRef] = len(merged)
+			merged = append(merged, entry)
+			continue
+		}
+
+		if preferSourceEntry(entry, merged[position]) {
+			merged[position] = entry
+		}
+	}
+
+	return merged
+}
+
+func preferSourceEntry(candidate, current SourceEntry) bool {
+	if candidate.Progress != current.Progress {
+		return candidate.Progress > current.Progress
+	}
+
+	return sourceStatusRank(candidate.Status) > sourceStatusRank(current.Status)
+}
+
+func sourceStatusRank(status SourceStatus) int {
+	switch status {
+	case StatusCompleted:
+		return 6
+	case StatusRepeating:
+		return 5
+	case StatusCurrent:
+		return 4
+	case StatusPaused:
+		return 3
+	case StatusDropped:
+		return 2
+	case StatusPlanning:
+		return 1
+	default:
+		return 0
+	}
+}
+
 func newJob(entry SourceEntry, existing map[MediaRef]TargetUpdate) Job {
 	job := Job{Entry: entry, Action: ActionCreate}
 	if entry.MALID == 0 {
@@ -33,6 +82,11 @@ func newJob(entry SourceEntry, existing map[MediaRef]TargetUpdate) Job {
 		currentCopy := current
 		job.Current = &currentCopy
 		job.Action = ActionUpdate
+		if current.ProgressLimit > 0 && job.Update.Progress > current.ProgressLimit {
+			job.Update.Progress = current.ProgressLimit
+		}
+
+		job.Update.ProgressLimit = current.ProgressLimit
 		if sameTarget(current, job.Update) {
 			job.Action = ActionSkip
 			job.Reason = "already up to date"
@@ -43,7 +97,7 @@ func newJob(entry SourceEntry, existing map[MediaRef]TargetUpdate) Job {
 }
 
 func sameTarget(current, desired TargetUpdate) bool {
-	if current.Status != desired.Status || current.Score != desired.Score || current.Progress != desired.Progress || current.Volumes != desired.Volumes || current.Repeat != desired.Repeat || current.Repeating != desired.Repeating || current.Notes != desired.Notes {
+	if current.Status != desired.Status || current.Score != desired.Score || current.Progress != desired.Progress || current.Volumes != desired.Volumes {
 		return false
 	}
 

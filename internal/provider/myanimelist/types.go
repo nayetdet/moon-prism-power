@@ -7,13 +7,22 @@ type listResponse struct {
 	Paging listPaging  `json:"paging"`
 }
 
+type detailResponse struct {
+	ID          int         `json:"id"`
+	NumEpisodes int         `json:"num_episodes"`
+	NumChapters int         `json:"num_chapters"`
+	ListStatus  *listStatus `json:"my_list_status"`
+}
+
 type listEntry struct {
-	Node listNode `json:"node"`
+	Node       listNode   `json:"node"`
+	ListStatus listStatus `json:"list_status"`
 }
 
 type listNode struct {
-	ID         int        `json:"id"`
-	ListStatus listStatus `json:"list_status"`
+	ID          int `json:"id"`
+	NumEpisodes int `json:"num_episodes"`
+	NumChapters int `json:"num_chapters"`
 }
 
 type listStatus struct {
