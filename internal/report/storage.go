@@ -18,7 +18,7 @@ func (r Report) Write(path string) error {
 	}
 
 	temporaryName := temporary.Name()
-	defer os.Remove(temporaryName)
+	defer func() { _ = os.Remove(temporaryName) }()
 
 	encoder := json.NewEncoder(temporary)
 	encoder.SetIndent("", "  ")
