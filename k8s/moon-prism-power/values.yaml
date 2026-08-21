@@ -1,6 +1,9 @@
 schedule: "0 3 * * *"
 timeZone: America/Fortaleza
 
+migration:
+  autoConfirm: true
+
 reports:
   persistence:
     enabled: true

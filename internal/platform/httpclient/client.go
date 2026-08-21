@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/go-retryablehttp"
 )
 
-const DefaultTimeout = 30 * time.Second
+const DefaultTimeout = 2 * time.Minute
 
 func New() *http.Client {
 	client := retryablehttp.NewClient()

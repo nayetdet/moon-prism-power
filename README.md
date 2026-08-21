@@ -54,6 +54,10 @@ make mpp
 The migration shows a preview before making changes. Confirm the prompt to
 continue, or press Enter to cancel.
 
+For non-interactive executions, set `AUTO_CONFIRM=true` to keep the preview
+but skip the confirmation prompt. Any other value, including `false`, keeps
+the confirmation prompt enabled.
+
 The browser is only used by `mpp-auth`. `mpp` refreshes the access token in
 memory when it starts, so no access token needs to be stored in `.env`.
 

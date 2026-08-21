@@ -40,6 +40,9 @@ spec:
                 - name: reports
                   mountPath: /app/data
               {{- end }}
+              env:
+                - name: AUTO_CONFIRM
+                  value: {{ .Values.migration.autoConfirm | quote }}
               envFrom:
                 - secretRef:
                     name: {{ required "secrets.application.name is required" .Values.secrets.application.name | quote }}

@@ -60,11 +60,12 @@ func RunMPP(ctx context.Context, input io.Reader, output, errorOutput io.Writer)
 	}
 
 	_, _ = fmt.Fprint(output, summary(plan))
-	if !confirm(input, output) {
+	if os.Getenv("AUTO_CONFIRM") != "true" && !confirm(input, output) {
 		executionReport.SetCanceled(time.Now())
 		if err := executionReport.Write(reportPath); err != nil {
 			return err
 		}
+
 		_, _ = fmt.Fprintln(output, "Migration canceled. No changes were made.")
 		return nil
 	}
