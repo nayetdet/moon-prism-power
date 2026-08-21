@@ -50,13 +50,13 @@ func (c *Client) List(ctx context.Context) (map[migration.MediaRef]struct{}, err
 
 			if resp.StatusCode >= 300 {
 				body := utils.ReadErrorBody(resp.Body)
-				resp.Body.Close()
+				_ = resp.Body.Close()
 				return nil, fmt.Errorf("MAL list: %s: %s", resp.Status, strings.TrimSpace(body))
 			}
 
 			var page listResponse
 			err = json.NewDecoder(resp.Body).Decode(&page)
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			if err != nil {
 				return nil, fmt.Errorf("decode MAL list: %w", err)
 			}
@@ -106,7 +106,7 @@ func (c *Client) Update(ctx context.Context, item migration.TargetUpdate) error 
 		return err
 	}
 
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode >= 300 {
 		body := utils.ReadErrorBody(resp.Body)
 		return fmt.Errorf("MAL returned %s: %s", resp.Status, strings.TrimSpace(body))

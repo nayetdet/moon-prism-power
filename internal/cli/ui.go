@@ -26,7 +26,7 @@ func summary(plan migration.Plan) string {
 }
 
 func confirm(input io.Reader, output io.Writer) bool {
-	fmt.Fprint(output, "This will update your MyAnimeList list. Continue? [y/N] ")
+	_, _ = fmt.Fprint(output, "This will update your MyAnimeList list. Continue? [y/N] ")
 	answer, _ := bufio.NewReader(input).ReadString('\n')
 	answer = strings.TrimSpace(answer)
 	return strings.EqualFold(answer, "y") || strings.EqualFold(answer, "yes")

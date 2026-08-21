@@ -7,6 +7,7 @@ pkgs.mkShell {
     gotools
     delve
     golangci-lint
+    ripgrep
 
     git
     gnumake

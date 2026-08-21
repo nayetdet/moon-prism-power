@@ -22,7 +22,7 @@ func RunMPPAuth(ctx context.Context, output io.Writer) error {
 
 	httpClient := httpclient.New()
 	token, err := mal.Authorize(ctx, httpClient, clientID, func(url string) {
-		fmt.Fprintf(output, "Open this URL to authorize MyAnimeList access:\n%s\n", url)
+		_, _ = fmt.Fprintf(output, "Open this URL to authorize MyAnimeList access:\n%s\n", url)
 		browser.Open(url)
 	})
 
@@ -30,6 +30,6 @@ func RunMPPAuth(ctx context.Context, output io.Writer) error {
 		return err
 	}
 
-	fmt.Fprintf(output, "MAL_REFRESH_TOKEN=%s\n", token.RefreshToken)
+	_, _ = fmt.Fprintf(output, "MAL_REFRESH_TOKEN=%s\n", token.RefreshToken)
 	return nil
 }

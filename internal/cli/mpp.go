@@ -46,17 +46,17 @@ func RunMPP(ctx context.Context, input io.Reader, output, errorOutput io.Writer)
 		return err
 	}
 
-	fmt.Fprint(output, summary(plan))
+	_, _ = fmt.Fprint(output, summary(plan))
 	if !confirm(input, output) {
-		fmt.Fprintln(output, "Migration canceled. No changes were made.")
+		_, _ = fmt.Fprintln(output, "Migration canceled. No changes were made.")
 		return nil
 	}
 
 	result, applyErr := service.Apply(ctx, plan)
 	for _, job := range result.Failed {
-		fmt.Fprintf(errorOutput, "failed: %s: %s\n", job.Entry.Title, job.Reason)
+		_, _ = fmt.Fprintf(errorOutput, "failed: %s: %s\n", job.Entry.Title, job.Reason)
 	}
 
-	fmt.Fprintf(output, "\nMigration complete: %d succeeded, %d skipped, %d failed.\n", result.Succeeded, result.Skipped, len(result.Failed))
+	_, _ = fmt.Fprintf(output, "\nMigration complete: %d succeeded, %d skipped, %d failed.\n", result.Succeeded, result.Skipped, len(result.Failed))
 	return applyErr
 }

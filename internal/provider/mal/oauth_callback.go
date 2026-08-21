@@ -41,6 +41,6 @@ func callbackHandler(callback chan<- callbackResult) http.HandlerFunc {
 			callback <- callbackResult{Code: r.URL.Query().Get("code"), State: r.URL.Query().Get("state"), Error: r.URL.Query().Get("error")}
 		})
 
-		fmt.Fprint(w, "Authorization received. You can close this page and return to the terminal.")
+		_, _ = fmt.Fprint(w, "Authorization received. You can close this page and return to the terminal.")
 	}
 }

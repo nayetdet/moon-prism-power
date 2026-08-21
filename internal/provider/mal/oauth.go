@@ -33,7 +33,7 @@ func Authorize(ctx context.Context, client *http.Client, clientID string, openUR
 		return OAuthToken{}, err
 	}
 
-	defer server.Shutdown(context.Background())
+	defer func() { _ = server.Shutdown(context.Background()) }()
 	openURL(authorizationURL(clientID, verifier, state))
 	select {
 	case result := <-callback:
@@ -83,7 +83,7 @@ func requestToken(ctx context.Context, client *http.Client, form url.Values) (OA
 		return OAuthToken{}, err
 	}
 
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode >= 300 {
 		body := utils.ReadErrorBody(resp.Body)
 		return OAuthToken{}, fmt.Errorf("MAL token: %s: %s", resp.Status, strings.TrimSpace(body))

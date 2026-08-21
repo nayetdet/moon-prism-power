@@ -47,17 +47,17 @@ func (c *Client) List(ctx context.Context, username string) ([]migration.SourceE
 
 		if resp.StatusCode >= 300 {
 			responseBody := utils.ReadErrorBody(resp.Body)
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			return nil, fmt.Errorf("AniList returned %s: %s", resp.Status, responseBody)
 		}
 
 		var payload mediaListResponse
 		if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			return nil, fmt.Errorf("decode AniList response: %w", err)
 		}
 
-		resp.Body.Close()
+		_ = resp.Body.Close()
 		if len(payload.Errors) > 0 {
 			return nil, fmt.Errorf("AniList: %s", payload.Errors[0].Message)
 		}
