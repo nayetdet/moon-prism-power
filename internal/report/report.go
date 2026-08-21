@@ -77,18 +77,28 @@ func (r *Report) SetResult(result migration.Result, now time.Time, applyErr erro
 }
 
 func jobReport(job migration.Job, outcome migration.JobResult) JobReport {
+	var current *Target
+	if job.Current != nil {
+		value := targetReport(*job.Current)
+		current = &value
+	}
+
 	return JobReport{
 		Title: job.Entry.Title, Kind: job.Entry.Kind, MALID: job.Entry.MALID,
-		Action: job.Action, Status: outcome.Status, Reason: outcome.Reason,
+		Action: job.Action, Status: outcome.Status, Reason: outcome.Reason, Current: current,
 		Source: Source{
 			Title: job.Entry.Title, Status: job.Entry.Status, Score: job.Entry.Score,
 			Progress: job.Entry.Progress, Volumes: job.Entry.Volumes, Repeat: job.Entry.Repeat,
 			Notes: job.Entry.Notes, StartDate: job.Entry.StartDate, FinishDate: job.Entry.FinishDate,
 		},
-		Target: Target{
-			Status: job.Update.Status, Score: job.Update.Score, Progress: job.Update.Progress,
-			Volumes: job.Update.Volumes, Repeat: job.Update.Repeat, Repeating: job.Update.Repeating,
-			Notes: job.Update.Notes, StartDate: job.Update.StartDate, FinishDate: job.Update.FinishDate,
-		},
+		Target: targetReport(job.Update),
+	}
+}
+
+func targetReport(update migration.TargetUpdate) Target {
+	return Target{
+		Status: update.Status, Score: update.Score, Progress: update.Progress,
+		Volumes: update.Volumes, Repeat: update.Repeat, Repeating: update.Repeating,
+		Notes: update.Notes, StartDate: update.StartDate, FinishDate: update.FinishDate,
 	}
 }

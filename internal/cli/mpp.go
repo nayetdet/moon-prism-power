@@ -59,7 +59,7 @@ func RunMPP(ctx context.Context, input io.Reader, output, errorOutput io.Writer)
 		return err
 	}
 
-	_, _ = fmt.Fprint(output, summary(plan))
+	_, _ = fmt.Fprint(output, planSummary(plan))
 	if os.Getenv("AUTO_CONFIRM") != "true" && !confirm(input, output) {
 		executionReport.SetCanceled(time.Now())
 		if err := executionReport.Write(reportPath); err != nil {

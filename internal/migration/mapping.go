@@ -11,7 +11,6 @@ var targetStatuses = map[SourceStatus]TargetStatus{
 
 func newJob(entry SourceEntry, existing map[MediaRef]TargetUpdate) Job {
 	job := Job{Entry: entry, Action: ActionCreate}
-
 	if entry.MALID == 0 {
 		job.Action, job.Reason = ActionSkip, "AniList did not provide a MyAnimeList ID"
 		return job
@@ -31,6 +30,8 @@ func newJob(entry SourceEntry, existing map[MediaRef]TargetUpdate) Job {
 	}
 
 	if current, found := existing[entry.MediaRef]; found {
+		currentCopy := current
+		job.Current = &currentCopy
 		job.Action = ActionUpdate
 		if sameTarget(current, job.Update) {
 			job.Action = ActionSkip
@@ -45,12 +46,15 @@ func sameTarget(current, desired TargetUpdate) bool {
 	if current.Status != desired.Status || current.Score != desired.Score || current.Progress != desired.Progress || current.Volumes != desired.Volumes || current.Repeat != desired.Repeat || current.Repeating != desired.Repeating || current.Notes != desired.Notes {
 		return false
 	}
+
 	if desired.StartDate != "" && current.StartDate != desired.StartDate {
 		return false
 	}
+
 	if desired.FinishDate != "" && current.FinishDate != desired.FinishDate {
 		return false
 	}
+
 	return true
 }
 

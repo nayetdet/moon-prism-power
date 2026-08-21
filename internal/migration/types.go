@@ -60,10 +60,11 @@ type Destination interface {
 }
 
 type Job struct {
-	Entry  SourceEntry
-	Update TargetUpdate
-	Action Action
-	Reason string
+	Entry   SourceEntry
+	Current *TargetUpdate
+	Update  TargetUpdate
+	Action  Action
+	Reason  string
 }
 
 type Plan struct {

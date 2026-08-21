@@ -30,14 +30,15 @@ type Summary struct {
 }
 
 type JobReport struct {
-	Title  string              `json:"title"`
-	Kind   migration.MediaKind `json:"kind"`
-	MALID  int                 `json:"mal_id"`
-	Action migration.Action    `json:"action"`
-	Status migration.JobStatus `json:"status"`
-	Reason string              `json:"reason,omitempty"`
-	Source Source              `json:"source"`
-	Target Target              `json:"target"`
+	Title   string              `json:"title"`
+	Kind    migration.MediaKind `json:"kind"`
+	MALID   int                 `json:"mal_id"`
+	Action  migration.Action    `json:"action"`
+	Status  migration.JobStatus `json:"status"`
+	Reason  string              `json:"reason,omitempty"`
+	Current *Target             `json:"current,omitempty"`
+	Source  Source              `json:"source"`
+	Target  Target              `json:"target"`
 }
 
 type Source struct {
